@@ -16,6 +16,9 @@ PLATFORM = platform.system()
 def get_steam_apps_path():
     if PLATFORM == 'Windows':
         program_files = os.getenv('PROGRAMFILES(x86)')
+        if program_files is None:
+            # Running on 32 bit Windows
+            program_files = os.getenv('PROGRAMFILES')
         path = os.path.join(program_files,  'Steam', 'steamapps', 'common')
     else:
         path = None
