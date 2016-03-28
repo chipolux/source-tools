@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QListWidgetItem
 from core.ui.launcher_ui import Ui_Launcher
 
 from core.config import CONFIG
+from core.utils import show_dialog
 
 PLATFORM = platform.system()
 
@@ -71,7 +72,12 @@ class Launcher(QWidget, Ui_Launcher):
             self.hammer_instance.start(app_path, args)
             self.hammer_instance.waitForStarted()
         else:
-            print('Hammer instance already running!')
+            show_dialog(
+                title='Hammer Already Running',
+                text='A Hammer instance is already running!',
+                icon='Information',
+                parent=self,
+            )
 
 
 if __name__ == '__main__':
