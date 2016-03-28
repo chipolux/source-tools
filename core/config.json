@@ -1,0 +1,20 @@
+{
+    "hammer_versions": [
+        {
+            "platform": "Windows",
+            "name": "Garry's Mod",
+            "path": ["GarrysMod", "bin", "hammer.exe"]
+        },
+        {
+            "platform": "Windows",
+            "name": "Half-Life 2",
+            "path": ["half-life 2", "bin", "Hammer.bat"]
+        },
+        {
+            "platform": "Windows",
+            "name": "Portal 2",
+            "path": ["Portal 2", "bin", "hammer.exe"],
+            "args": ["-nop4"]
+        }
+    ]
+}

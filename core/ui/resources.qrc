@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="icons">
+    <file alias="hammer">hammer.png</file>
+  </qresource>
+</RCC>
