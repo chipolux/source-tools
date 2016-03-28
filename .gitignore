@@ -1,2 +1,5 @@
 core/ui/*_ui.py
 core/ui/*_rc.py
+*.log
+
+__pycache__
