@@ -31,7 +31,7 @@ def find_hammer_instances():
     steam_apps_path = get_steam_apps_path()
 
     for version in versions:
-        version['path'] = os.path.join(steam_apps_path, version['path'])
+        version['path'] = os.path.join(steam_apps_path, *version['path'])
         if os.path.isfile(version['path']):
             found_versions.append(version)
 
