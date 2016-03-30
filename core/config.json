@@ -8,7 +8,25 @@
         {
             "platform": "Windows",
             "name": "Half-Life 2",
-            "path": ["half-life 2", "bin", "Hammer.bat"]
+            "path": ["half-life 2", "bin", "hammer.exe"],
+            "vproject": ["half-life 2", "hl2"]
+        },
+        {
+            "platform": "Windows",
+            "name": "Half-Life 2: Episode 1",
+            "path": ["half-life 2", "bin", "hammer.exe"],
+            "vproject": ["half-life 2", "episodic"]
+        },
+        {
+            "platform": "Windows",
+            "name": "Half-Life 2: Episode 2",
+            "path": ["half-life 2", "bin", "hammer.exe"],
+            "vproject": ["half-life 2", "ep2"]
+        },
+        {
+            "platform": "Windows",
+            "name": "Black Mesa",
+            "path": ["Black Mesa", "bin", "hammer.exe"]
         },
         {
             "platform": "Windows",

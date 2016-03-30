@@ -2,7 +2,7 @@ import os
 import platform
 import sys
 
-from PyQt5.QtCore import Qt, QProcess
+from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment
 from PyQt5.QtWidgets import QApplication, QWidget, QListWidgetItem
 
 from core.ui.launcher_ui import Ui_Launcher
@@ -36,6 +36,12 @@ def find_hammer_instances():
 
     for version in versions:
         version['path'] = os.path.join(steam_apps_path, *version['path'])
+
+        if 'vproject' in version:
+            version['vproject'] = os.path.join(
+                steam_apps_path, *version['vproject']
+            )
+
         if os.path.isfile(version['path']):
             found_versions.append(version)
 
@@ -65,13 +71,23 @@ class Launcher(QWidget, Ui_Launcher):
     def hammer_version_selected(self, item):
         self.open_hammer_button.setEnabled(True)
 
+    def get_selected_hammer_version(self):
+        item = self.hammer_versions.currentItem()
+        return item.data(Qt.UserRole)
+
     def open_hammer(self, *args):
         current_state = self.hammer_instance.state()
         if current_state == QProcess.NotRunning:
-            item = self.hammer_versions.currentItem()
-            version = item.data(Qt.UserRole)
+            version = self.get_selected_hammer_version()
+
+            if 'vproject' in version:
+                env = QProcessEnvironment.systemEnvironment()
+                env.insert('VPROJECT', version['vproject'])
+                self.hammer_instance.setProcessEnvironment(env)
+
             app_path = '"{}"'.format(version['path'])
             args = version.get('args', [])
+
             self.hammer_instance.start(app_path, args)
             self.hammer_instance.waitForStarted()
         else:
