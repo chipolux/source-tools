@@ -25,6 +25,17 @@
         },
         {
             "platform": "Windows",
+            "name": "Team Fortress 2",
+            "path": ["team fortress 2", "bin", "hammer.exe"],
+            "vproject": ["team fortress 2", "tf"]
+        },
+        {
+            "platform": "Windows",
+            "name": "Left 4 Dead 2",
+            "path": ["Left 4 Dead 2", "bin", "hammer.exe"]
+        },
+        {
+            "platform": "Windows",
             "name": "Black Mesa",
             "path": ["Black Mesa", "bin", "hammer.exe"]
         },
