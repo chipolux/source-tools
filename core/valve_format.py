@@ -101,30 +101,31 @@ def parse_line(line):
     return key, value
 
 
-with open('gameinfo.txt', 'r') as f:
-    lines = f.readlines()
+def parse(f):
+    # Reduce file down to core data structure
+    parsed_lines = []
+    for line in f.readlines():
+        line = parse_line(line)
+        if line is not None:
+            parsed_lines.append(line)
 
-# Reduce file down to core data structure
-parsed_lines = []
-for line in lines:
-    line = parse_line(line)
-    if line is not None:
-        parsed_lines.append(line)
+    # Build branches
+    root_branch = Branch(name='gameinfo.txt', is_file=True)
+    current_branch = root_branch
+    for line in parsed_lines:
+        if isinstance(line, tuple):
+            current_branch.add_leaf(*line)
+        elif line == '{':
+            # TODO: is stipping these opening quotes okay to do in parse_line?
+            continue
+        elif line == '}':
+            # Closing branch, go back to parent
+            current_branch = current_branch.parent
+        else:
+            current_branch = Branch(name=line, parent=current_branch)
 
-# Build branches
-root_branch = Branch(name='gameinfo.txt', is_file=True)
-current_branch = root_branch
-for line in parsed_lines:
-    if isinstance(line, tuple):
-        current_branch.add_leaf(*line)
-    elif line == '{':
-        # TODO: is stipping these opening quotes okay to do in parse_line?
-        continue
-    elif line == '}':
-        # Closing branch, go back to parent
-        current_branch = current_branch.parent
-    else:
-        current_branch = Branch(name=line, parent=current_branch)
+    return root_branch
 
-with open('clean_gameinfo.txt', 'w') as f:
-    f.writelines(root_branch.serialize())
+
+def write(f, branch):
+    f.writelines(branch.serialize())
