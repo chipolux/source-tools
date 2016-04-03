@@ -1,5 +1,4 @@
 import os
-import platform
 import sys
 
 from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment
@@ -10,42 +9,50 @@ from core.ui.launcher_ui import Ui_Launcher
 from core.config import CONFIG
 from core.utils import show_dialog
 
-PLATFORM = platform.system()
-
 
 def get_steam_apps_path():
-    if PLATFORM == 'Windows':
-        program_files = os.getenv('PROGRAMFILES(x86)')
-        if program_files is None:
-            # Running on 32 bit Windows
-            program_files = os.getenv('PROGRAMFILES')
-        path = os.path.join(program_files,  'Steam', 'steamapps', 'common')
-    else:
-        path = None
+    program_files = os.getenv('PROGRAMFILES(x86)')
+    if program_files is None:
+        # Running on 32 bit Windows
+        program_files = os.getenv('PROGRAMFILES')
+    path = os.path.join(program_files,  'Steam', 'steamapps', 'common')
 
     return path
 
 
-def find_hammer_instances():
-    found_versions = []
-    versions = filter(
-        lambda x: x['platform'] == PLATFORM, CONFIG['hammer_versions']
+def get_available_toolsets():
+    available_toolsets = []
+
+    for toolset in CONFIG['toolsets']:
+        toolset = build_toolset_paths(toolset)
+
+        if os.path.isfile(toolset['hammer_path']):
+            available_toolsets.append(toolset)
+
+    return available_toolsets
+
+
+def build_toolset_paths(toolset):
+    apps_path = get_steam_apps_path()
+
+    toolset['root_path'] = os.path.join(apps_path, *toolset['root_path'])
+    toolset['bin_path'] = os.path.join(toolset['root_path'], 'bin')
+    toolset['gameinfo_dir'] = os.path.join(
+        toolset['root_path'], toolset['gameinfo_dir']
     )
+    game_arg = '-game "{}"'.format(toolset['gameinfo_dir'])
 
-    steam_apps_path = get_steam_apps_path()
+    toolset['hammer_path'] = os.path.join(toolset['bin_path'], 'hammer.exe')
 
-    for version in versions:
-        version['path'] = os.path.join(steam_apps_path, *version['path'])
+    toolset['viewer_path'] = os.path.join(toolset['bin_path'], 'hlmv.exe')
+    toolset.setdefault('viewer_args', [])
+    toolset['viewer_args'].append(game_arg)
 
-        if 'vproject' in version:
-            version['vproject'] = os.path.join(
-                steam_apps_path, *version['vproject']
-            )
+    toolset['poser_path'] = os.path.join(toolset['bin_path'], 'hlfaceposer.exe')
+    toolset.setdefault('poser_args', [])
+    toolset['poser_args'].append(game_arg)
 
-        if os.path.isfile(version['path']):
-            found_versions.append(version)
-
-    return found_versions
+    return toolset
 
 
 class Launcher(QWidget, Ui_Launcher):
@@ -53,50 +60,77 @@ class Launcher(QWidget, Ui_Launcher):
         super().__init__(parent)
         self.setupUi(self)
 
-        self.hammer_versions.itemClicked.connect(
-            self.hammer_version_selected
-        )
-        self.hammer_versions.itemDoubleClicked.connect(self.open_hammer)
+        self.toolset = None
+        self.populate_toolset_list()
+        self.toolset_list.itemClicked.connect(self.toolset_selected)
+
         self.open_hammer_button.clicked.connect(self.open_hammer)
-
         self.hammer_instance = QProcess(self)
-        self.populate_hammer_list()
 
-    def populate_hammer_list(self):
-        for version in find_hammer_instances():
-            item = QListWidgetItem(version['name'])
-            item.setData(Qt.UserRole, version)
-            self.hammer_versions.addItem(item)
+        self.open_viewer_button.clicked.connect(self.open_viewer)
+        self.viewer_instance = QProcess(self)
 
-    def hammer_version_selected(self, item):
-        self.open_hammer_button.setEnabled(True)
+        self.open_poser_button.clicked.connect(self.open_poser)
+        self.poser_instance = QProcess(self)
 
-    def get_selected_hammer_version(self):
-        item = self.hammer_versions.currentItem()
-        return item.data(Qt.UserRole)
+    def populate_toolset_list(self):
+        for toolset in get_available_toolsets():
+            item = QListWidgetItem(toolset['name'])
+            item.setData(Qt.UserRole, toolset)
+            self.toolset_list.addItem(item)
 
-    def open_hammer(self, *args):
-        current_state = self.hammer_instance.state()
+    def toolset_selected(self, item):
+        self.toolset = item.data(Qt.UserRole)
+        self.open_hammer_button.setDisabled(True)
+        self.open_viewer_button.setDisabled(True)
+        self.open_poser_button.setDisabled(True)
+
+        if os.path.isfile(self.toolset['hammer_path']):
+            self.open_hammer_button.setEnabled(True)
+        if os.path.isfile(self.toolset['viewer_path']):
+            self.open_viewer_button.setEnabled(True)
+        if os.path.isfile(self.toolset['poser_path']):
+            self.open_poser_button.setEnabled(True)
+
+    def open_app(self, instance, path, args, vproject):
+        current_state = instance.state()
         if current_state == QProcess.NotRunning:
-            version = self.get_selected_hammer_version()
-
-            if 'vproject' in version:
-                env = QProcessEnvironment.systemEnvironment()
-                env.insert('VPROJECT', version['vproject'])
-                self.hammer_instance.setProcessEnvironment(env)
-
-            app_path = '"{}"'.format(version['path'])
-            args = version.get('args', [])
-
-            self.hammer_instance.start(app_path, args)
-            self.hammer_instance.waitForStarted()
+            env = QProcessEnvironment.systemEnvironment()
+            env.insert('VPROJECT', vproject)
+            instance.setProcessEnvironment(env)
+            instance.start('"{}"'.format(path), args)
+            instance.waitForStarted()
         else:
             show_dialog(
-                title='Hammer Already Running',
-                text='A Hammer instance is already running!',
+                title='Instance Already Running',
+                text='A instance of that app is already running!',
                 icon='Information',
                 parent=self,
             )
+
+    def open_hammer(self):
+        self.open_app(
+            self.hammer_instance,
+            self.toolset['hammer_path'],
+            self.toolset.get('hammer_args', []),
+            self.toolset['gameinfo_dir'],
+        )
+
+    def open_viewer(self):
+        self.open_app(
+            self.viewer_instance,
+            self.toolset['viewer_path'],
+            self.toolset.get('viewer_args', []),
+            self.toolset['gameinfo_dir'],
+        )
+
+    def open_poser(self):
+        self.open_app(
+            self.poser_instance,
+            self.toolset['poser_path'],
+            self.toolset.get('poser_args', []),
+            self.toolset['gameinfo_dir'],
+        )
 
 
 if __name__ == '__main__':

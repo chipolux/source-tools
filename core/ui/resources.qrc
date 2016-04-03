@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="icons">
-    <file alias="hammer">hammer.png</file>
+    <file alias="hammer">hammer.ico</file>
+    <file alias="poser">poser.ico</file>
+    <file alias="viewer">viewer.ico</file>
   </qresource>
 </RCC>

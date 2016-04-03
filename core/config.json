@@ -1,49 +1,46 @@
 {
-    "hammer_versions": [
+    "toolsets": [
         {
-            "platform": "Windows",
             "name": "Garry's Mod",
-            "path": ["GarrysMod", "bin", "hammer.exe"]
+            "root_path": ["GarrysMod"],
+            "gameinfo_dir": "garrysmod"
         },
         {
-            "platform": "Windows",
             "name": "Half-Life 2",
-            "path": ["half-life 2", "bin", "hammer.exe"],
-            "vproject": ["half-life 2", "hl2"]
+            "root_path": ["half-life 2"],
+            "gameinfo_dir": "hl2"
         },
         {
-            "platform": "Windows",
             "name": "Half-Life 2: Episode 1",
-            "path": ["half-life 2", "bin", "hammer.exe"],
-            "vproject": ["half-life 2", "episodic"]
+            "root_path": ["half-life 2"],
+            "gameinfo_dir": "episodic"
         },
         {
-            "platform": "Windows",
             "name": "Half-Life 2: Episode 2",
-            "path": ["half-life 2", "bin", "hammer.exe"],
-            "vproject": ["half-life 2", "ep2"]
+            "root_path": ["half-life 2"],
+            "gameinfo_dir": "ep2"
         },
         {
-            "platform": "Windows",
             "name": "Team Fortress 2",
-            "path": ["team fortress 2", "bin", "hammer.exe"],
-            "vproject": ["team fortress 2", "tf"]
+            "root_path": ["team fortress 2"],
+            "gameinfo_dir": "tf"
         },
         {
-            "platform": "Windows",
             "name": "Left 4 Dead 2",
-            "path": ["Left 4 Dead 2", "bin", "hammer.exe"]
+            "root_path": ["Left 4 Dead 2"],
+            "gameinfo_dir": "left2dead2"
         },
         {
-            "platform": "Windows",
             "name": "Black Mesa",
-            "path": ["Black Mesa", "bin", "hammer.exe"]
+            "root_path": ["Black Mesa"],
+            "gameinfo_dir": "bms"
         },
         {
-            "platform": "Windows",
             "name": "Portal 2",
-            "path": ["Portal 2", "bin", "hammer.exe"],
-            "args": ["-nop4"]
+            "root_path": ["Portal 2"],
+            "gameinfo_dir": "portal2",
+            "hammer_args": ["-nop4"],
+            "poser_args": ["-nop4"]
         }
     ]
 }
